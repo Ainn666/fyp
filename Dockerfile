@@ -1,9 +1,11 @@
 FROM python:3.10-slim
 
-# 📦 Install system dependencies needed to build wheels
+# Avoid frontend errors during debconf (optional but helps Render)
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
-    gcc \
     libffi-dev \
     libssl-dev \
     libpq-dev \
@@ -13,25 +15,22 @@ RUN apt-get update && apt-get install -y \
     libjpeg-dev \
     git \
     curl \
+    gcc \
     libyaml-dev \
-    python3-dev \
     && apt-get clean
 
-# 🐍 Set workdir and copy requirements
 WORKDIR /app
+
 COPY requirements.txt .
 
-# 🔧 Upgrade build tools BEFORE installing anything
-RUN pip install --upgrade pip setuptools wheel
+# Pin pip + setuptools + wheel to known good versions
+RUN pip install --upgrade pip==23.2.1 setuptools==65.5.1 wheel
 
-# 📥 Install everything including PyYAML (let rasa handle version)
+# Install everything normally (no manual PyYAML)
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 📁 Copy the rest of your code
 COPY . .
 
-# 🌐 Expose ports (Flask + Rasa + Actions)
 EXPOSE 5000 5005 5055
 
-# 🚀 Run everything
 CMD ["sh", "-c", "rasa run actions & rasa run --enable-api --cors '*' & python app.py"]
