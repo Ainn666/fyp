@@ -1,6 +1,6 @@
 FROM python:3.10-slim
 
-# Install OS build tools
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
     libffi-dev \
@@ -16,20 +16,26 @@ RUN apt-get update && apt-get install -y \
     libyaml-dev \
     && apt-get clean
 
-# Set working dir
+# Set working directory
 WORKDIR /app
 
-# Copy and install deps
+# Copy requirements first
 COPY requirements.txt .
 
-# UPGRADE pip and force wheel usage for pyyaml (this is the 🔑)
-RUN pip install --upgrade pip \
- && pip install --only-binary=:all: --no-cache-dir pyyaml==5.4.1 \
- && pip install --no-cache-dir -r requirements.txt
+# Upgrade pip + setuptools + wheel to latest to avoid build failures
+RUN pip install --upgrade pip setuptools wheel
 
-# Copy rest of app
+# Install PyYAML from wheel manually (before Rasa touches it)
+RUN pip install --only-binary=pyyaml pyyaml==5.4.1
+
+# Install other requirements
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy everything else
 COPY . .
 
+# Expose ports
 EXPOSE 5000 5005 5055
 
+# Start Rasa + Actions + Flask
 CMD ["sh", "-c", "rasa run actions & rasa run --enable-api --cors '*' & python app.py"]
