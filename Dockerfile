@@ -1,6 +1,6 @@
 FROM python:3.10-slim
 
-# 📦 Install build tools and dependencies
+# 📦 Install system dependencies needed to build wheels
 RUN apt-get update && apt-get install -y \
     build-essential \
     gcc \
@@ -11,28 +11,27 @@ RUN apt-get update && apt-get install -y \
     libxslt1-dev \
     zlib1g-dev \
     libjpeg-dev \
-    libyaml-dev \
     git \
     curl \
+    libyaml-dev \
+    python3-dev \
     && apt-get clean
 
-# 📁 Set working directory
+# 🐍 Set workdir and copy requirements
 WORKDIR /app
-
-# 🐍 Copy and install Python dependencies
 COPY requirements.txt .
 
-# Make sure pip, setuptools, and wheel are up-to-date
+# 🔧 Upgrade build tools BEFORE installing anything
 RUN pip install --upgrade pip setuptools wheel
 
-# Install everything including PyYAML normally
+# 📥 Install everything including PyYAML (let rasa handle version)
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 🗂️ Copy the rest of your code
+# 📁 Copy the rest of your code
 COPY . .
 
-# 🌐 Expose ports
+# 🌐 Expose ports (Flask + Rasa + Actions)
 EXPOSE 5000 5005 5055
 
-# 🧠 Start the services
+# 🚀 Run everything
 CMD ["sh", "-c", "rasa run actions & rasa run --enable-api --cors '*' & python app.py"]
