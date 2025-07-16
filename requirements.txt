@@ -3,3 +3,4 @@ rasa-sdk==3.6.1
 flask
 fpdf
 google-generativeai
+pyyaml==5.4.1
