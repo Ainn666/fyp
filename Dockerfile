@@ -1,36 +1,34 @@
-FROM python:3.10-slim
+FROM python:3.10
 
-# 📦 Install OS-level build tools
+# 📦 Install system dependencies
 RUN apt-get update && apt-get install -y \
-    build-essential \
+    libpq-dev \
     libffi-dev \
     libssl-dev \
-    libpq-dev \
+    git \
+    curl \
+    build-essential \
+    libyaml-dev \
     libxml2-dev \
     libxslt1-dev \
     zlib1g-dev \
     libjpeg-dev \
-    git \
-    curl \
-    gcc \
-    libyaml-dev \
     && apt-get clean
 
 # 📁 Set working directory
 WORKDIR /app
 
-# 🐍 Copy and install Python dependencies (install PyYAML manually first!)
+# 📄 Copy requirements and install them
 COPY requirements.txt .
 
 RUN pip install --upgrade pip
-RUN pip install --no-cache-dir pyyaml==5.4.1
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 🗂️ Copy all other source code
+# 📂 Copy the full project
 COPY . .
 
-# 🌐 Expose ports for Flask, Rasa HTTP, and Rasa Actions
+# 🌍 Expose necessary ports
 EXPOSE 5000 5005 5055
 
-# 🧠 Run everything together: Rasa Actions, Rasa Core API, Flask
+# 🚀 Start Rasa Actions, Rasa Server, and Flask App
 CMD ["sh", "-c", "rasa run actions & rasa run --enable-api --cors '*' & python app.py"]
