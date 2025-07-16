@@ -1,8 +1,9 @@
 FROM python:3.10-slim
 
-# Install system dependencies
+# 📦 Install build tools and dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
+    gcc \
     libffi-dev \
     libssl-dev \
     libpq-dev \
@@ -10,32 +11,28 @@ RUN apt-get update && apt-get install -y \
     libxslt1-dev \
     zlib1g-dev \
     libjpeg-dev \
+    libyaml-dev \
     git \
     curl \
-    gcc \
-    libyaml-dev \
     && apt-get clean
 
-# Set working directory
+# 📁 Set working directory
 WORKDIR /app
 
-# Copy requirements first
+# 🐍 Copy and install Python dependencies
 COPY requirements.txt .
 
-# Upgrade pip + setuptools + wheel to latest to avoid build failures
+# Make sure pip, setuptools, and wheel are up-to-date
 RUN pip install --upgrade pip setuptools wheel
 
-# Install PyYAML from wheel manually (before Rasa touches it)
-RUN pip install --only-binary=pyyaml pyyaml==5.4.1
-
-# Install other requirements
+# Install everything including PyYAML normally
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy everything else
+# 🗂️ Copy the rest of your code
 COPY . .
 
-# Expose ports
+# 🌐 Expose ports
 EXPOSE 5000 5005 5055
 
-# Start Rasa + Actions + Flask
+# 🧠 Start the services
 CMD ["sh", "-c", "rasa run actions & rasa run --enable-api --cors '*' & python app.py"]
