@@ -1,0 +1,46 @@
+# Ignore Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Ignore virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# Ignore cleaned_data, generated_summaries, pdfs
+data/cleaned_data/
+data/generated_summaries/
+data/pdfs
+
+# Ignore logs and temporary files
+*.log
+*.tmp
+*.swp
+*.bak
+
+# Ignore model files
+*.zip
+*.pkl
+
+# Ignore Rasa generated files
+.rasa/
+results/
+models/
+events.db
+
+# VSCode settings
+.vscode/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore compiled files
+*.so
+
+# Ignore secrets (just in case)
+*.env
+.env
+credentials.yml

@@ -1,0 +1,12 @@
+# This file contains the different endpoints your bot can use.
+# https://rasa.com/docs/rasa/user-guide/running-the-rasa-server/
+
+# Custom Action Server (used in docker-compose)
+action_endpoint:
+  url: "http://localhost:5055/webhook"
+
+# Load latest model from local path
+model: models
+
+# Optional tracker store and event broker settings are disabled for now.
+# You can enable Redis, MongoDB, or Kafka later if needed.
